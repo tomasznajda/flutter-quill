@@ -20,17 +20,14 @@ class Operation {
           if (key != Operation.insertKey) return true;
           return data is String ? data.length == length : length == 1;
         }(), 'Length of insert operation must be equal to the data length.'),
-        _attributes =
-            attributes != null ? Map<String, dynamic>.from(attributes) : null;
+        _attributes = attributes != null ? Map<String, dynamic>.from(attributes) : null;
 
   /// Creates operation which deletes [length] of characters.
-  factory Operation.delete(int length) =>
-      Operation(Operation.deleteKey, length, '', null);
+  factory Operation.delete(int length) => Operation(Operation.deleteKey, length, '', null);
 
   /// Creates operation which inserts [text] with optional [attributes].
   factory Operation.insert(dynamic data, [Map<String, dynamic>? attributes]) =>
-      Operation(Operation.insertKey, data is String ? data.length : 1, data,
-          attributes);
+      Operation(Operation.insertKey, data is String ? data.length : 1, data, attributes);
 
   /// Creates operation which retains [length] of characters and optionally
   /// applies attributes.
@@ -61,8 +58,7 @@ class Operation {
   final Object? data;
 
   /// Rich-text attributes set by this operation, can be `null`.
-  Map<String, dynamic>? get attributes =>
-      _attributes == null ? null : Map<String, dynamic>.from(_attributes);
+  Map<String, dynamic>? get attributes => _attributes == null ? null : Map<String, dynamic>.from(_attributes ?? {});
   final Map<String, dynamic>? _attributes;
 
   /// Creates new [Operation] from JSON payload.
@@ -75,15 +71,13 @@ class Operation {
     if (map.containsKey(Operation.insertKey)) {
       final data = dataDecoder(map[Operation.insertKey]);
       final dataLength = data is String ? data.length : 1;
-      return Operation(
-          Operation.insertKey, dataLength, data, map[Operation.attributesKey]);
+      return Operation(Operation.insertKey, dataLength, data, map[Operation.attributesKey]);
     } else if (map.containsKey(Operation.deleteKey)) {
       final int? length = map[Operation.deleteKey];
       return Operation(Operation.deleteKey, length, '', null);
     } else if (map.containsKey(Operation.retainKey)) {
       final int? length = map[Operation.retainKey];
-      return Operation(
-          Operation.retainKey, length, '', map[Operation.attributesKey]);
+      return Operation(Operation.retainKey, length, '', map[Operation.attributesKey]);
     }
     throw ArgumentError.value(data, 'Invalid data for Delta operation.');
   }
@@ -110,7 +104,7 @@ class Operation {
   bool get isRetain => key == Operation.retainKey;
 
   /// Returns `true` if this operation has no attributes, e.g. is plain text.
-  bool get isPlain => _attributes == null || _attributes.isEmpty;
+  bool get isPlain => _attributes == null || (_attributes ?? {}).isEmpty;
 
   /// Returns `true` if this operation sets at least one attribute.
   bool get isNotPlain => !isPlain;
@@ -135,14 +129,12 @@ class Operation {
   }
 
   /// Returns `true` if this operation has attribute specified by [name].
-  bool hasAttribute(String name) =>
-      isNotPlain && _attributes!.containsKey(name);
+  bool hasAttribute(String name) => isNotPlain && _attributes!.containsKey(name);
 
   /// Returns `true` if [other] operation has the same attributes as this one.
   bool hasSameAttributes(Operation other) {
     // treat null and empty equal
-    if ((_attributes?.isEmpty ?? true) &&
-        (other._attributes?.isEmpty ?? true)) {
+    if ((_attributes?.isEmpty ?? true) && (other._attributes?.isEmpty ?? true)) {
       return true;
     }
     return _attributeEquality.equals(_attributes, other._attributes);
@@ -150,9 +142,8 @@ class Operation {
 
   @override
   int get hashCode {
-    if (_attributes != null && _attributes.isNotEmpty) {
-      final attrsHash =
-          hashObjects(_attributes.entries.map((e) => hash2(e.key, e.value)));
+    if (_attributes != null && (_attributes ?? {}).isNotEmpty) {
+      final attrsHash = hashObjects((_attributes ?? {}).entries.map((e) => hash2(e.key, e.value)));
       return hash3(key, value, attrsHash);
     }
     return hash2(key, value);
@@ -161,11 +152,7 @@ class Operation {
   @override
   String toString() {
     final attr = attributes == null ? '' : ' + $attributes';
-    final text = isInsert
-        ? (data is String
-            ? (data as String).replaceAll('\n', '⏎')
-            : data.toString())
-        : '$length';
+    final text = isInsert ? (data is String ? (data as String).replaceAll('\n', '⏎') : data.toString()) : '$length';
     return '$key⟨ $text ⟩$attr';
   }
 }

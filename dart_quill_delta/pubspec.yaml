@@ -7,7 +7,7 @@ issue_tracker: https://github.com/singerdmx/flutter-quill/issues/
 documentation: https://github.com/singerdmx/flutter-quill/tree/master/dart_quill_delta/
 
 environment:
-  sdk: ^3.2.3
+  sdk: ^3.1.5
 
 dependencies:
   collection: ^1.17.0
